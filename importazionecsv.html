@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" a href="style.css">
+    <title>Importazione CSV</title>
+    
+</head>
+<body>
+    <h1>Importazione CSV</h1>
+    <input type="file" onchange="readFile(this)" accept=".csv" />
+    <div id="tableContainer"></div>
+
+    <script>
+        function readFile(input) {
+            let file = input.files[0];
+
+            if (file) {
+                let reader = new FileReader();
+
+                reader.readAsText(file);
+
+                reader.onload = function() {
+
+                    const content = reader.result;
+                    const data = parseCSV(content);
+                    createTable(data);
+                };
+
+                reader.onerror = function() {
+                    console.log(reader.error);
+                };
+            }
+        }
+
+        function parseCSV(csvText) {
+            const lines = csvText.split('\n');
+            const headers = lines[0].split(',').map(header => header.trim()); // Estrai le intestazioni
+            const rows = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const row = lines[i].split(',').map(cell => cell.trim());
+                if (row.length === headers.length) {
+                    const rowData = {};
+                    for (let j = 0; j < headers.length; j++) {
+                        rowData[headers[j]] = row[j];
+                    }
+                    rows.push(rowData);
+                }
+            }
+
+            return rows;
+        }
+
+        function createTable(data) {
+            let tableHtml = '<table>';
+            
+         
+            const headers = Object.keys(data[0]);
+            tableHtml += '<tr>';
+            headers.forEach(header => {
+                tableHtml += `<th>${header}</th>`;
+            });
+            tableHtml += '</tr>';
+
+            data.forEach(row => {
+                tableHtml += '<tr>';
+                headers.forEach(header => {
+                    tableHtml += `<td>${row[header]}</td>`;
+                });
+                tableHtml += '</tr>';
+            });
+
+            tableHtml += '</table>';
+
+     
+            document.getElementById('tableContainer').innerHTML = tableHtml;
+        }
+    </script>
+</body>
+</html>
+
